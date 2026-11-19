@@ -6,27 +6,31 @@
 <title>Mi Colección Musical</title>
 <link rel="manifest" href="manifest.json">
 <style>
+:root{--bg:#121212;--card:#1e1e1e;--inp:#222;--txt:#fff;--sub:#bbb;--brd:#333;--acc:#1db954}
+body.t-light{--bg:#f4f4f6;--card:#ffffff;--inp:#e9e9ed;--txt:#111;--sub:#555;--brd:#d4d4d8;--acc:#15803d}
+body.t-blue{--bg:#0b132b;--card:#1c2541;--inp:#243054;--txt:#f0f4f8;--sub:#bcccdc;--brd:#3a506b;--acc:#38bdf8}
+body.t-retro{--bg:#231b15;--card:#2f241d;--inp:#3b2d24;--txt:#f5ebe0;--sub:#d5bdaf;--brd:#524034;--acc:#e09f3e}
 *{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
-body{background:#121212;color:#fff;padding-bottom:85px}
-header{background:#1e1e1e;padding:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;flex-wrap:wrap;gap:6px}
-h1{font-size:1.15rem;color:#1db954}
-.tabs{display:flex;background:#181818;position:fixed;bottom:0;width:100%;border-top:1px solid #333;z-index:99}
-.tab{flex:1;padding:12px 4px;color:#aaa;font-weight:bold;border:none;background:none;font-size:.82rem}
-.tab.active{color:#1db954;border-top:3px solid #1db954}
+body{background:var(--bg);color:var(--txt);padding-bottom:85px;transition:.2s}
+header{background:var(--card);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:6px}
+h1{font-size:1.1rem;color:var(--acc)}
+.tabs{display:flex;background:var(--card);position:fixed;bottom:0;width:100%;border-top:1px solid var(--brd);z-index:99}
+.tab{flex:1;padding:12px 4px;color:var(--sub);font-weight:bold;border:none;background:none;font-size:.82rem}
+.tab.active{color:var(--acc);border-top:3px solid var(--acc)}
 .sec{display:none;padding:15px}.sec.active{display:block}
 .row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-input,select,button{padding:11px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:.95rem}
-input{flex:1;min-width:140px}button.p{background:#1db954;color:#000;font-weight:bold;border:none}
+input,select,button{padding:10px;border-radius:8px;border:1px solid var(--brd);background:var(--inp);color:var(--txt);font-size:.92rem}
+input{flex:1;min-width:130px}button.p{background:var(--acc);color:#fff;font-weight:bold;border:none}
 button.w{background:#ffb300;color:#000;font-weight:bold;border:none}
-.g-head{color:#1db954;font-size:.95rem;font-weight:bold;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid #2c2c2c;display:flex;justify-content:space-between}
+.g-head{color:var(--acc);font-size:.95rem;font-weight:bold;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#1e1e1e;border-radius:10px;overflow:hidden;border:1px solid #2c2c2c}
-.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#2a2a2a}
-.cb{padding:10px}.badge{background:#333;color:#1db954;font-size:.72rem;padding:3px 7px;border-radius:10px;display:inline-block;margin-top:5px;margin-right:4px}
-.badge.wish{color:#ffb300}.badge.gen{color:#90caf9;background:#1a2733}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;overflow-y:auto;padding:18px}
-.mc{background:#1e1e1e;border-radius:12px;padding:15px;max-width:480px;margin:auto}
-ul{margin-top:10px;list-style:none}li{padding:7px 0;border-bottom:1px solid #2a2a2a;font-size:.9rem}
+.card{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--brd)}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--inp)}
+.cb{padding:10px}.cb small{color:var(--sub)}.badge{background:var(--inp);color:var(--acc);font-size:.72rem;padding:3px 7px;border-radius:10px;display:inline-block;margin-top:5px;margin-right:4px}
+.badge.wish{color:#d97706}.badge.gen{color:#0284c7}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;overflow-y:auto;padding:18px}
+.mc{background:var(--card);color:var(--txt);border-radius:12px;padding:15px;max-width:480px;margin:auto;border:1px solid var(--brd)}
+ul{margin-top:10px;list-style:none}li{padding:7px 0;border-bottom:1px solid var(--brd);font-size:.9rem}
 .al{padding:12px;border-radius:8px;margin-top:12px;font-weight:bold;text-align:center}
 .yes{background:#1b5e20;color:#a5d6a7}.no{background:#b71c1c;color:#ffcdd2}
 video{width:100%;border-radius:10px;margin-top:10px;display:none}
@@ -34,8 +38,18 @@ video{width:100%;border-radius:10px;margin-top:10px;display:none}
 </head>
 <body>
 <header>
-  <div><h1>🎵 Mi Colección</h1><small id="cnt" style="color:#aaa">0 discos</small></div>
-  <div><button id="exp" style="padding:6px 10px;font-size:.8rem">⬇️ Respaldo</button> <button id="imp" style="padding:6px 10px;font-size:.8rem">⬆️ Restaurar</button><input type="file" id="finp" accept=".json" style="display:none"></div>
+  <div><h1>🎵 Mi Colección</h1><small id="cnt" style="color:var(--sub)">0 discos</small></div>
+  <div style="display:flex;gap:4px;align-items:center">
+    <select id="thm" style="padding:5px 6px;font-size:.78rem">
+      <option value="">🌑 Oscuro</option>
+      <option value="t-light">☀️ Claro</option>
+      <option value="t-blue">🌌 Azul</option>
+      <option value="t-retro">📻 Retro</option>
+    </select>
+    <button id="exp" style="padding:6px 8px;font-size:.78rem">⬇️</button>
+    <button id="imp" style="padding:6px 8px;font-size:.78rem">⬆️</button>
+    <input type="file" id="finp" accept=".json" style="display:none">
+  </div>
 </header>
 <div id="s-lib" class="sec active">
   <div class="row">
@@ -64,6 +78,11 @@ video{width:100%;border-radius:10px;margin-top:10px;display:none}
 </nav>
 <script>
 let col=JSON.parse(localStorage.getItem('mc')||'[]'),wsh=JSON.parse(localStorage.getItem('mw')||'[]'),st=null,iv=null;
+const savedThm=localStorage.getItem('mthm')||'';
+if(savedThm)document.body.className=savedThm;
+const thmSel=document.getElementById('thm');thmSel.value=savedThm;
+thmSel.onchange=e=>{document.body.className=e.target.value;localStorage.setItem('mthm',e.target.value)};
+
 const GENRES=['Rock','Pop','Metal','Jazz','Blues','Electrónica','Hip-Hop / Rap','Soul / Funk','Latina / Regional','Clásica','Soundtrack','Otro'];
 const MB=['https:/','musicbrainz.org','ws','2','release'].join('/');
 const CA=['https:/','coverartarchive.org','release'].join('/');
@@ -116,7 +135,7 @@ async function fallbackCover(imgEl,artist,title){
 function renderList(arr,boxId,qId,fId,gId,mode){
   const box=document.getElementById(boxId),q=document.getElementById(qId).value.toLowerCase(),f=document.getElementById(fId).value,gen=document.getElementById(gId).value;
   const list=arr.filter(x=>(x.t.toLowerCase().includes(q)||x.a.toLowerCase().includes(q))&&(f==='Todos'||x.f===f)&&(gen==='Todos'||(x.g||'Otro')===gen));
-  box.innerHTML=list.length?'':'<p style="text-align:center;color:#777;margin-top:20px">Vacío. Toca + Agregar abajo</p>';
+  box.innerHTML=list.length?'':'<p style="text-align:center;color:var(--sub);margin-top:20px">Vacío. Toca + Agregar abajo</p>';
   if(!list.length)return;
   const groups={};
   list.forEach(x=>{const k=x.g||'Otro';if(!groups[k])groups[k]=[];groups[k].push(x)});
@@ -127,7 +146,7 @@ function renderList(arr,boxId,qId,fId,gId,mode){
     const grid=document.createElement('div');grid.className='grid';
     groups[k].forEach(x=>{
       const d=document.createElement('div');d.className='card';
-      d.innerHTML=`<img src="${x.c}"><div class="cb"><b>${x.t}</b><br><small style="color:#bbb">${x.a}</small><br><span class="badge ${mode==='wsh'?'wish':''}">${x.f}</span><span class="badge gen">${x.g||'Otro'}</span></div>`;
+      d.innerHTML=`<img src="${x.c}"><div class="cb"><b>${x.t}</b><br><small>${x.a}</small><br><span class="badge ${mode==='wsh'?'wish':''}">${x.f}</span><span class="badge gen">${x.g||'Otro'}</span></div>`;
       const img=d.querySelector('img');img.onerror=()=>fallbackCover(img,x.a,x.t);
       d.onclick=()=>openDet(x.id,mode);grid.appendChild(d);
     });
@@ -135,7 +154,7 @@ function renderList(arr,boxId,qId,fId,gId,mode){
   });
 }
 
-function render(){document.getElementById('cnt').innerText=`${col.length} en colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','fg','col');renderList(wsh,'gwsh','fw','ffw','fgw','wsh')}
+function render(){document.getElementById('cnt').innerText=`${col.length} colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','fg','col');renderList(wsh,'gwsh','fw','ffw','fgw','wsh')}
 
 async function search(bc=null){
   const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
@@ -143,17 +162,17 @@ async function search(bc=null){
   if(bc){try{const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5'),d=await r.json();return d.releases||[]}catch(e){return[]}}
   try{
     const r=await fetch(IT+'?term='+encodeURIComponent(q)+'&entity=album&limit=16'),d=await r.json(),items=d.results||[];
-    if(items.length){g.innerHTML='';items.forEach(x=>{const c=x.artworkUrl100.replace('100x100','600x600'),dg=mapGenre(x.primaryGenreName),el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.collectionName}</b><br><small style="color:#bbb">${x.artistName}</small><br><span class="badge gen">${dg}</span></div>`;el.onclick=()=>openDet('it_'+x.collectionId,'new_it',x.artistName,x.collectionName,'Vinilo','',c,x.collectionId,dg);g.appendChild(el)});return}
+    if(items.length){g.innerHTML='';items.forEach(x=>{const c=x.artworkUrl100.replace('100x100','600x600'),dg=mapGenre(x.primaryGenreName),el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.collectionName}</b><br><small>${x.artistName}</small><br><span class="badge gen">${dg}</span></div>`;el.onclick=()=>openDet('it_'+x.collectionId,'new_it',x.artistName,x.collectionName,'Vinilo','',c,x.collectionId,dg);g.appendChild(el)});return}
     const r2=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d2=await r2.json(),rels=d2.releases||[];
     g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados. Usa el botón amarillo de arriba.</p>';
-    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new_mb',a,x.title,f,x.barcode||'',img.src,null,'Otro');g.appendChild(el)});
+    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small>${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new_mb',a,x.title,f,x.barcode||'',img.src,null,'Otro');g.appendChild(el)});
   }catch(e){g.innerHTML='<p style="grid-column:1/-1">Error de red. Intenta de nuevo.</p>'}
 }
 const genOpts=(sel)=>GENRES.map(g=>`<option ${g===sel?'selected':''}>${g}</option>`).join('');
 
 function openManual(){
   const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';
-  b.innerHTML=`<h2>✍️ Nuevo Álbum Manual</h2><input id="mt" placeholder="Nombre del álbum" style="width:100%;margin:8px 0"><input id="ma" placeholder="Artista o banda" style="width:100%;margin-bottom:8px"><div class="row"><select id="mf" style="flex:1"><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select><select id="mg" style="flex:1">${genOpts('Rock')}</select></div><textarea id="mtr" rows="5" placeholder="Canciones (una por línea, opcional)..." style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px;margin-bottom:10px"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="p" style="flex:1" id="msav">💾 Colección</button><button class="w" style="flex:1" id="msavw">⭐ Deseos</button><button id="mcls">Cerrar</button></div>`;
+  b.innerHTML=`<h2>✍️ Nuevo Álbum Manual</h2><input id="mt" placeholder="Nombre del álbum" style="width:100%;margin:8px 0"><input id="ma" placeholder="Artista o banda" style="width:100%;margin-bottom:8px"><div class="row"><select id="mf" style="flex:1"><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select><select id="mg" style="flex:1">${genOpts('Rock')}</select></div><textarea id="mtr" rows="5" placeholder="Canciones (una por línea, opcional)..." style="width:100%;padding:8px;margin-bottom:10px"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="p" style="flex:1" id="msav">💾 Colección</button><button class="w" style="flex:1" id="msavw">⭐ Deseos</button><button id="mcls">Cerrar</button></div>`;
   document.getElementById('mcls').onclick=()=>m.style.display='none';
   const addMan=(target)=>{const t=document.getElementById('mt').value.trim(),a=document.getElementById('ma').value.trim();if(!t||!a){alert('Escribe álbum y artista');return}const tr=document.getElementById('mtr').value.split('\n').map(s=>s.trim()).filter(Boolean);target.push({id:'man_'+Date.now(),t,a,f:document.getElementById('mf').value,g:document.getElementById('mg').value,c:NO_IMG,tr,bc:''});save();m.style.display='none';alert('¡Álbum guardado!')};
   document.getElementById('msav').onclick=()=>addMan(col);
@@ -173,7 +192,7 @@ async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null,
   const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando canciones...';
   if(mode==='col'||mode==='wsh'){
     const x=(mode==='col'?col:wsh).find(i=>i.id===id);
-    b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:8px">${x.a}</p><div class="row"><select id="ef" style="flex:1"><option ${x.f==='Vinilo'?'selected':''}>Vinilo</option><option ${x.f==='CD'?'selected':''}>CD</option><option ${x.f==='Cassette'?'selected':''}>Cassette</option><option ${x.f==='Digital'?'selected':''}>Digital</option></select><select id="eg" style="flex:1">${genOpts(x.g||'Otro')}</select></div><div style="margin-bottom:10px;background:#2a2a2a;padding:8px;border-radius:8px"><label style="font-size:.85rem;color:#1db954;display:block;margin-bottom:4px">🖼️ Cambiar portada (Galería o Cámara):</label><input type="file" id="camf" accept="image/*" style="width:100%;font-size:.85rem;padding:6px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
+    b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:var(--sub);margin-bottom:8px">${x.a}</p><div class="row"><select id="ef" style="flex:1"><option ${x.f==='Vinilo'?'selected':''}>Vinilo</option><option ${x.f==='CD'?'selected':''}>CD</option><option ${x.f==='Cassette'?'selected':''}>Cassette</option><option ${x.f==='Digital'?'selected':''}>Digital</option></select><select id="eg" style="flex:1">${genOpts(x.g||'Otro')}</select></div><div style="margin-bottom:10px;background:var(--inp);padding:8px;border-radius:8px"><label style="font-size:.85rem;color:var(--acc);display:block;margin-bottom:4px">🖼️ Cambiar portada (Galería o Cámara):</label><input type="file" id="camf" accept="image/*" style="width:100%;font-size:.85rem;padding:6px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="edt">✏️ Canciones</button><button style="background:#e53935;color:#fff;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:var(--sub)">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
     const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
     document.getElementById('ef').onchange=e=>{x.f=e.target.value;save()};
     document.getElementById('eg').onchange=e=>{x.g=e.target.value;save()};
@@ -185,7 +204,7 @@ async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null,
     document.getElementById('cls').onclick=()=>m.style.display='none';return;
   }
   const tr=await fetchTracks(id,mode,itId),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
-  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><div class="row"><select id="sf" style="flex:1"><option ${df.includes('Vinyl')||df==='Vinilo'?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><select id="sg" style="flex:1">${genOpts(dg)}</select></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
+  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:var(--sub);margin-bottom:10px">${a}</p><div class="row"><select id="sf" style="flex:1"><option ${df.includes('Vinyl')||df==='Vinilo'?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><select id="sg" style="flex:1">${genOpts(dg)}</select></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:var(--sub)">Sin lista automática (edítala después).</li>'}</ul>`;
   const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,a,t);
   document.getElementById('cls').onclick=()=>m.style.display='none';
   document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,g:document.getElementById('sg').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Colección!')};
