@@ -103,12 +103,25 @@ async function fetchTracks(id,title,artist){
   const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando...';
   if(mode==='col'||mode==='wsh'){
     const x=(mode==='col'?col:wsh).find(i=>i.id===id);
-    b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="cimg">🖼️ Subir portada</button><input type="file" id="camf" accept="image/*" style="display:none"><button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
+    b.innerHTML=<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="margin-bottom:10px;background:#2a2a2a;padding:8px;border-radius:8px"><label style="font-size:.85rem;color:#1db954;display:block;margin-bottom:4px">🖼️ Cambiar portada (Galería o Cámara):</label><input type="file" id="camf" accept="image/*" style="width:100%;font-size:.85rem;padding:6px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=><li>${i+1}. ${k}</li>).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>;
     const mimg=document.getElementById('mimg');
     if(x.c.startsWith('data:image/svg'))fallbackCover(mimg,x.a,x.t);
     mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
-    document.getElementById('cimg').onclick=()=>document.getElementById('camf').click();
-    document.getElementById('camf').onchange=ev=>{const file=ev.target.files.at(0);if(!file)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const cv=document.createElement('canvas');cv.width=400;cv.height=400;cv.getContext('2d').drawImage(img,0,0,400,400);x.c=cv.toDataURL('image/jpeg',0.8);save();openDet(id,mode)};img.src=rd.result};rd.readAsDataURL(file)};
+    document.getElementById('camf').addEventListener('change',function(){
+      const file=this.files&&this.files.item(0);if(!file)return;
+      const rd=new FileReader();
+      rd.onload=ev=>{
+        const img=new Image();
+        img.onload=()=>{
+          const cv=document.createElement('canvas');cv.width=400;cv.height=400;
+          cv.getContext('2d').drawImage(img,0,0,400,400);
+          const dataUrl=cv.toDataURL('image/jpeg',0.8);
+          x.c=dataUrl;mimg.src=dataUrl;save();
+        };
+        img.src=ev.target.result;
+      };
+      rd.readAsDataURL(file);
+    });
     if(mode==='wsh')document.getElementById('mov').onclick=()=>{wsh=wsh.filter(i=>i.id!==id);col.push(x);save();m.style.display='none';alert('¡Movido a Colección!')};
     document.getElementById('edt').onclick=()=>{const box=document.getElementById('edbox');box.style.display=box.style.display==='none'?'block':'none'};
     document.getElementById('savtr').onclick=()=>{x.tr=document.getElementById('txttr').value.split('\n').map(s=>s.trim()).filter(Boolean);save();openDet(id,mode)};
@@ -116,7 +129,7 @@ async function fetchTracks(id,title,artist){
     document.getElementById('cls').onclick=()=>m.style.display='none';return;
   }
   const tr=await fetchTracks(id,t,a),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
-  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
+  b.innerHTML=<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=><li>${i+1}. ${k}</li>).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>;
   const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,a,t);
   document.getElementById('cls').onclick=()=>m.style.display='none';
   document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Colección!')};
@@ -131,10 +144,10 @@ async function startCam(){
 }
 async function checkCode(c){
   const r=document.getElementById('sr');r.innerHTML='<p style="margin-top:10px">Revisando...</p>';
-  const ex=col.find(x=>x.bc===c);if(ex){r.innerHTML=`<div class="al yes">✅ ¡YA LO TIENES! ${ex.t} (${ex.f})</div>`;return}
-  const exw=wsh.find(x=>x.bc===c);if(exw){r.innerHTML=`<div class="al" style="background:#f57f17;color:#fff">⭐ ¡ESTÁ EN DESEOS! ${exw.t} (${exw.f})</div>`;return}
+  const ex=col.find(x=>x.bc===c);if(ex){r.innerHTML=<div class="al yes">✅ ¡YA LO TIENES! ${ex.t} (${ex.f})</div>;return}
+  const exw=wsh.find(x=>x.bc===c);if(exw){r.innerHTML=<div class="al" style="background:#f57f17;color:#fff">⭐ ¡ESTÁ EN DESEOS! ${exw.t} (${exw.f})</div>;return}
   const f=await search(c);
-  if(f&&f.length){const x=f.at(0),ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());r.innerHTML=inc?`<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>`:`<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>`}else r.innerHTML=`<div class="al no">❓ Código (${c}) no encontrado.</div>`;
+  if(f&&f.length){const x=f.at(0),ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());r.innerHTML=inc?<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>:<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>}else r.innerHTML=<div class="al no">❓ Código (${c}) no encontrado.</div>;
 }
 render();
 </script>
