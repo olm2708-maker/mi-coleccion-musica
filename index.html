@@ -52,6 +52,7 @@ let col=JSON.parse(localStorage.getItem('mc')||'[]'),wsh=JSON.parse(localStorage
 const MB=['https:/','musicbrainz.org','ws','2','release'].join('/');
 const CA=['https:/','coverartarchive.org','release'].join('/');
 const IT=['https:/','://apple.com','search'].join('/');
+const IL=['https:/','://apple.com','lookup'].join('/');
 const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
 const save=()=>{localStorage.setItem('mc',JSON.stringify(col));localStorage.setItem('mw',JSON.stringify(wsh));render()};
 
@@ -65,6 +66,12 @@ document.getElementById('fw').oninput=render;document.getElementById('ffw').onch
 document.getElementById('bs').onclick=()=>search();
 document.getElementById('bc').onclick=startCam;
 document.getElementById('bv').onclick=()=>{const c=document.getElementById('mb').value.trim();if(c)checkCode(c)};
+
+const manBtn=document.createElement('button');
+manBtn.className='w';manBtn.style.cssText='width:100%;margin-bottom:14px';
+manBtn.innerText='✍️ Crear álbum manualmente (si no aparece)';
+manBtn.onclick=()=>openManual();
+document.getElementById('s-add').insertBefore(manBtn,document.getElementById('gres'));
 
 async function fallbackCover(imgEl,artist,title){
   if(imgEl.dataset.tried)return;imgEl.dataset.tried='1';
@@ -83,53 +90,49 @@ function render(){document.getElementById('cnt').innerText=`${col.length} en col
 
 async function search(bc=null){
   const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
-  const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando...</p>';
+  const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando en catálogo mundial...</p>';
+  if(bc){try{const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5'),d=await r.json();return d.releases||[]}catch(e){return[]}}
   try{
-    const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d=await r.json(),rels=d.releases||[];if(bc)return rels;
-    g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados</p>';
-    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new',a,x.title,f,x.barcode||'',img.src);g.appendChild(el)});
-  }catch(e){if(!bc)g.innerHTML='<p style="grid-column:1/-1">Error de red</p>';return[]}
+    const r=await fetch(IT+'?term='+encodeURIComponent(q)+'&entity=album&limit=16'),d=await r.json(),items=d.results||[];
+    if(items.length){g.innerHTML='';items.forEach(x=>{const c=x.artworkUrl100.replace('100x100','600x600'),el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.collectionName}</b><br><small style="color:#bbb">${x.artistName}</small><br><span class="badge">${x.releaseDate?x.releaseDate.slice(0,4):'Álbum'}</span></div>`;el.onclick=()=>openDet('it_'+x.collectionId,'new_it',x.artistName,x.collectionName,'Vinilo','',c,x.collectionId);g.appendChild(el)});return}
+    const r2=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d2=await r2.json(),rels=d2.releases||[];
+    g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados. Usa el botón amarillo de arriba.</p>';
+    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new_mb',a,x.title,f,x.barcode||'',img.src);g.appendChild(el)});
+  }catch(e){g.innerHTML='<p style="grid-column:1/-1">Error de red. Intenta de nuevo.</p>'}
+}
+function openManual(){
+  const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';
+  b.innerHTML=`<h2>✍️ Nuevo Álbum Manual</h2><p style="color:#aaa;font-size:.85rem;margin-bottom:10px">Completa los datos de tu disco:</p><input id="mt" placeholder="Nombre del álbum" style="width:100%;margin-bottom:8px"><input id="ma" placeholder="Artista o banda" style="width:100%;margin-bottom:8px"><select id="mf" style="width:100%;margin-bottom:8px"><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select><textarea id="mtr" rows="5" placeholder="Canciones (una por línea, opcional)..." style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px;margin-bottom:10px"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="p" style="flex:1" id="msav">💾 Colección</button><button class="w" style="flex:1" id="msavw">⭐ Deseos</button><button id="mcls">Cerrar</button></div>`;
+  document.getElementById('mcls').onclick=()=>m.style.display='none';
+  const addMan=(target)=>{const t=document.getElementById('mt').value.trim(),a=document.getElementById('ma').value.trim();if(!t||!a){alert('Escribe álbum y artista');return}const tr=document.getElementById('mtr').value.split('\n').map(s=>s.trim()).filter(Boolean);target.push({id:'man_'+Date.now(),t,a,f:document.getElementById('mf').value,c:NO_IMG,tr,bc:''});save();m.style.display='none';alert('¡Álbum guardado!')};
+  document.getElementById('msav').onclick=()=>addMan(col);
+  document.getElementById('msavw').onclick=()=>addMan(wsh);
 }
 
-async function fetchTracks(id,title,artist){
+async function fetchTracks(id,mode,itId){
   let tr=[];
   try{
+    if(mode==='new_it'&&itId){const r=await fetch(IL+'?id='+itId+'&entity=song'),d=await r.json();(d.results||[]).forEach(k=>{if(k.wrapperType==='track')tr.push(k.trackName)});return tr}
     const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json'),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
-    if(!tr.length&&title){const r2=await fetch(MB+'/?query='+encodeURIComponent(`release:"${title}" AND artist:"${artist}"`)+'&fmt=json&limit=5'),d2=await r2.json();for(const alt of(d2.releases||[])){if(alt.id===id)continue;const r3=await fetch(MB+'/'+alt.id+'?inc=recordings&fmt=json'),d3=await r3.json();(d3.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));if(tr.length)break}}
   }catch(e){}
   return tr;
 }
-async function openDet(id,mode,a='',t='',df='CD',bc='',prevImg=''){
-  const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando...';
+
+async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null){
+  const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando canciones...';
   if(mode==='col'||mode==='wsh'){
     const x=(mode==='col'?col:wsh).find(i=>i.id===id);
     b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="margin-bottom:10px;background:#2a2a2a;padding:8px;border-radius:8px"><label style="font-size:.85rem;color:#1db954;display:block;margin-bottom:4px">🖼️ Cambiar portada (Galería o Cámara):</label><input type="file" id="camf" accept="image/*" style="width:100%;font-size:.85rem;padding:6px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
-    const mimg=document.getElementById('mimg');
-    if(x.c.startsWith('data:image/svg'))fallbackCover(mimg,x.a,x.t);
-    mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
-    document.getElementById('camf').addEventListener('change',function(){
-      const file=this.files&&this.files.item(0);if(!file)return;
-      const rd=new FileReader();
-      rd.onload=ev=>{
-        const img=new Image();
-        img.onload=()=>{
-          const cv=document.createElement('canvas');cv.width=400;cv.height=400;
-          cv.getContext('2d').drawImage(img,0,0,400,400);
-          const dataUrl=cv.toDataURL('image/jpeg',0.8);
-          x.c=dataUrl;mimg.src=dataUrl;save();
-        };
-        img.src=ev.target.result;
-      };
-      rd.readAsDataURL(file);
-    });
+    const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
+    document.getElementById('camf').addEventListener('change',function(){const file=this.files&&this.files.item(0);if(!file)return;const rd=new FileReader();rd.onload=ev=>{const img=new Image();img.onload=()=>{const cv=document.createElement('canvas');cv.width=400;cv.height=400;cv.getContext('2d').drawImage(img,0,0,400,400);const dataUrl=cv.toDataURL('image/jpeg',0.8);x.c=dataUrl;mimg.src=dataUrl;save()};img.src=ev.target.result};rd.readAsDataURL(file)});
     if(mode==='wsh')document.getElementById('mov').onclick=()=>{wsh=wsh.filter(i=>i.id!==id);col.push(x);save();m.style.display='none';alert('¡Movido a Colección!')};
     document.getElementById('edt').onclick=()=>{const box=document.getElementById('edbox');box.style.display=box.style.display==='none'?'block':'none'};
     document.getElementById('savtr').onclick=()=>{x.tr=document.getElementById('txttr').value.split('\n').map(s=>s.trim()).filter(Boolean);save();openDet(id,mode)};
     document.getElementById('del').onclick=()=>{if(mode==='col')col=col.filter(i=>i.id!==id);else wsh=wsh.filter(i=>i.id!==id);save();m.style.display='none'};
     document.getElementById('cls').onclick=()=>m.style.display='none';return;
   }
-  const tr=await fetchTracks(id,t,a),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
-  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
+  const tr=await fetchTracks(id,mode,itId),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
+  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')||df==='Vinilo'?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
   const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,a,t);
   document.getElementById('cls').onclick=()=>m.style.display='none';
   document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Colección!')};
