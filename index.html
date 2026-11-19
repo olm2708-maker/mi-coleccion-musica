@@ -7,20 +7,22 @@
 <link rel="manifest" href="manifest.json">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
-body{background:#121212;color:#fff;padding-bottom:80px}
-header{background:#1e1e1e;padding:15px;display:flex;justify-content:space-between;border-bottom:1px solid #333}
-h1{font-size:1.2rem;color:#1db954}
+body{background:#121212;color:#fff;padding-bottom:85px}
+header{background:#1e1e1e;padding:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;flex-wrap:wrap;gap:6px}
+h1{font-size:1.15rem;color:#1db954}
 .tabs{display:flex;background:#181818;position:fixed;bottom:0;width:100%;border-top:1px solid #333;z-index:99}
-.tab{flex:1;padding:15px;color:#aaa;font-weight:bold;border:none;background:none}
+.tab{flex:1;padding:12px 4px;color:#aaa;font-weight:bold;border:none;background:none;font-size:.82rem}
 .tab.active{color:#1db954;border-top:3px solid #1db954}
 .sec{display:none;padding:15px}.sec.active{display:block}
 .row{display:flex;gap:8px;margin-bottom:15px}
-input,select,button{padding:11px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:1rem}
+input,select,button{padding:11px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:.95rem}
 input{flex:1;min-width:0}button.p{background:#1db954;color:#000;font-weight:bold;border:none}
+button.w{background:#ffb300;color:#000;font-weight:bold;border:none}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .card{background:#1e1e1e;border-radius:10px;overflow:hidden;border:1px solid #2c2c2c}
 .card img{width:100%;aspect-ratio:1;object-fit:cover;background:#2a2a2a}
 .cb{padding:10px}.badge{background:#333;color:#1db954;font-size:.75rem;padding:3px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+.badge.wish{color:#ffb300}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;overflow-y:auto;padding:18px}
 .mc{background:#1e1e1e;border-radius:12px;padding:15px;max-width:480px;margin:auto}
 ul{margin-top:10px;list-style:none}li{padding:7px 0;border-bottom:1px solid #2a2a2a;font-size:.9rem}
@@ -30,145 +32,107 @@ video{width:100%;border-radius:10px;margin-top:10px;display:none}
 </style>
 </head>
 <body>
-<header><h1>🎵 Mi Colección</h1><span id="cnt" style="color:#aaa">0 discos</span></header>
-<div id="s-lib" class="sec active">
-<div class="row"><input id="fi" placeholder="Filtrar..."><select id="ff"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select></div>
-<div id="glib" class="grid"></div>
-</div>
-<div id="s-add" class="sec">
-<div class="row"><input id="sq" placeholder="Artista o álbum..."><button type="button" class="p" id="bs">Buscar</button></div>
-<div id="gres" class="grid"></div>
-</div>
-<div id="s-scn" class="sec">
-<button type="button" class="p" style="width:100%;margin-bottom:10px" id="bc">📷 Activar Cámara</button>
-<div class="row"><input id="mb" placeholder="O escribe código de barras..."><button type="button" class="p" id="bv">Revisar</button></div>
-<video id="vid" playsinline></video><div id="sr"></div>
-</div>
+<header>
+  <div><h1>🎵 Mi Colección</h1><small id="cnt" style="color:#aaa">0 discos</small></div>
+  <div><button id="exp" style="padding:6px 10px;font-size:.8rem">⬇️ Respaldo</button> <button id="imp" style="padding:6px 10px;font-size:.8rem">⬆️ Restaurar</button><input type="file" id="finp" accept=".json" style="display:none"></div>
+</header>
+<div id="s-lib" class="sec active"><div class="row"><input id="fi" placeholder="Filtrar biblioteca..."><select id="ff"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select></div><div id="glib" class="grid"></div></div>
+<div id="s-wsh" class="sec"><div class="row"><input id="fw" placeholder="Filtrar deseos..."><select id="ffw"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select></div><div id="gwsh" class="grid"></div></div>
+<div id="s-add" class="sec"><div class="row"><input id="sq" placeholder="Artista o álbum..."><button type="button" class="p" id="bs">Buscar</button></div><div id="gres" class="grid"></div></div>
+<div id="s-scn" class="sec"><button type="button" class="p" style="width:100%;margin-bottom:10px" id="bc">📷 Activar Cámara</button><div class="row"><input id="mb" placeholder="O escribe código de barras..."><button type="button" class="p" id="bv">Revisar</button></div><video id="vid" playsinline></video><div id="sr"></div></div>
 <div id="mod" class="modal"><div class="mc" id="mbod"></div></div>
 <nav class="tabs">
-<button type="button" class="tab active" data-t="lib">📚 Biblioteca</button>
-<button type="button" class="tab" data-t="add">➕ Agregar</button>
-<button type="button" class="tab" data-t="scn">📷 Escáner</button>
+  <button type="button" class="tab active" data-t="lib">📚 Colección</button>
+  <button type="button" class="tab" data-t="wsh">⭐ Deseos</button>
+  <button type="button" class="tab" data-t="add">➕ Agregar</button>
+  <button type="button" class="tab" data-t="scn">📷 Escáner</button>
 </nav>
 <script>
-let col=JSON.parse(localStorage.getItem('mc')||'[]'),st=null,iv=null;
+let col=JSON.parse(localStorage.getItem('mc')||'[]'),wsh=JSON.parse(localStorage.getItem('mw')||'[]'),st=null,iv=null;
 const MB=['https:/','musicbrainz.org','ws','2','release'].join('/');
 const CA=['https:/','coverartarchive.org','release'].join('/');
-const save=()=>{localStorage.setItem('mc',JSON.stringify(col));render()};
+const IT=['https:/','://apple.com','search'].join('/');
+const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
+const save=()=>{localStorage.setItem('mc',JSON.stringify(col));localStorage.setItem('mw',JSON.stringify(wsh));render()};
 
-const hdr=document.querySelector('header');
-const bkp=document.createElement('div');
-bkp.innerHTML=`<button id="exp" style="padding:6px 10px;font-size:.8rem;margin-right:4px">⬇️ Respaldo</button><button id="imp" style="padding:6px 10px;font-size:.8rem">⬆️ Restaurar</button><input type="file" id="finp" accept=".json" style="display:none">`;
-hdr.appendChild(bkp);
-
-document.getElementById('exp').onclick=()=>{
-const a=document.createElement('a');
-a.href=URL.createObjectURL(new Blob([JSON.stringify(col)],{type:'application/json'}));
-a.download='mi-coleccion-musica.json';a.click();
-};
+document.getElementById('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({col,wsh})],{type:'application/json'}));a.download='mi-coleccion-y-deseos.json';a.click()};
 document.getElementById('imp').onclick=()=>document.getElementById('finp').click();
-document.getElementById('finp').onchange=e=>{
-const f=e.target.files.at(0);if(!f)return;
-const r=new FileReader();
-r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)){col=d;save();alert('¡Colección restaurada!')}}catch(err){alert('Archivo inválido')}};
-r.readAsText(f);
-};
+document.getElementById('finp').onchange=e=>{const f=e.target.files.at(0);if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d))col=d;else if(d.col){col=d.col;wsh=d.wsh||[]}save();alert('¡Respaldo restaurado!')}catch(err){alert('Archivo inválido')}};r.readAsText(f)};
 
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
-document.querySelectorAll('.sec,.tab').forEach(e=>e.classList.remove('active'));
-document.getElementById('s-'+b.dataset.t).classList.add('active');b.classList.add('active');
-if(b.dataset.t!=='scn')stopCam();
-});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.sec,.tab').forEach(e=>e.classList.remove('active'));document.getElementById('s-'+b.dataset.t).classList.add('active');b.classList.add('active');if(b.dataset.t!=='scn')stopCam()});
 document.getElementById('fi').oninput=render;document.getElementById('ff').onchange=render;
+document.getElementById('fw').oninput=render;document.getElementById('ffw').onchange=render;
 document.getElementById('bs').onclick=()=>search();
 document.getElementById('bc').onclick=startCam;
 document.getElementById('bv').onclick=()=>{const c=document.getElementById('mb').value.trim();if(c)checkCode(c)};
 
-function render(){
-const g=document.getElementById('glib'),q=document.getElementById('fi').value.toLowerCase(),f=document.getElementById('ff').value;
-document.getElementById('cnt').innerText=col.length+' discos';
-const list=col.filter(x=>(x.t.toLowerCase().includes(q)||x.a.toLowerCase().includes(q))&&(f==='Todos'||x.f===f));
-g.innerHTML=list.length?'':'<p style="grid-column:1/-1;text-align:center;color:#777;margin-top:20px">Vacío. Toca + Agregar</p>';
-list.forEach(x=>{
-const d=document.createElement('div');d.className='card';
-d.innerHTML=`<img src="${x.c}" onerror="this.style.display='none'"><div class="cb"><b>${x.t}</b><br><small style="color:#bbb">${x.a}</small><br><span class="badge">${x.f}</span></div>`;
-d.onclick=()=>openDet(x.id,true);g.appendChild(d);
-});
+async function fallbackCover(imgEl,artist,title){
+  if(imgEl.dataset.tried)return;imgEl.dataset.tried='1';
+  try{const r=await fetch(IT+'?term='+encodeURIComponent(artist+' '+title)+'&entity=album&limit=1'),d=await r.json();if(d.results&&d.results.length){imgEl.src=d.results.at(0).artworkUrl100.replace('100x100','600x600');return}}catch(e){}
+  imgEl.src=NO_IMG;
 }
 
+function renderList(arr,gridId,qId,fId,mode){
+  const g=document.getElementById(gridId),q=document.getElementById(qId).value.toLowerCase(),f=document.getElementById(fId).value;
+  const list=arr.filter(x=>(x.t.toLowerCase().includes(q)||x.a.toLowerCase().includes(q))&&(f==='Todos'||x.f===f));
+  g.innerHTML=list.length?'':'<p style="grid-column:1/-1;text-align:center;color:#777;margin-top:20px">Vacío. Toca + Agregar abajo</p>';
+  list.forEach(x=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<img src="${x.c}"><div class="cb"><b>${x.t}</b><br><small style="color:#bbb">${x.a}</small><br><span class="badge ${mode==='wsh'?'wish':''}">${x.f}</span></div>`;const img=d.querySelector('img');img.onerror=()=>fallbackCover(img,x.a,x.t);d.onclick=()=>openDet(x.id,mode);g.appendChild(d)});
+}
+
+function render(){document.getElementById('cnt').innerText=`${col.length} en colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','col');renderList(wsh,'gwsh','fw','ffw','wsh')}
+
 async function search(bc=null){
-const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
-const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando...</p>';
-try{
-const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12');
-const d=await r.json(),rels=d.releases||[];if(bc)return rels;
-g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados</p>';
-rels.forEach(x=>{
-const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250';
-const f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';
-const el=document.createElement('div');el.className='card';
-el.innerHTML=`<img src="${c}" onerror="this.style.display='none'"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;
-el.onclick=()=>openDet(x.id,false,a,x.title,f,x.barcode||'');g.appendChild(el);
-});
-}catch(e){if(!bc)g.innerHTML='<p style="grid-column:1/-1">Error de red</p>';return[]}
+  const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
+  const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando...</p>';
+  try{
+    const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d=await r.json(),rels=d.releases||[];if(bc)return rels;
+    g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados</p>';
+    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new',a,x.title,f,x.barcode||'',img.src);g.appendChild(el)});
+  }catch(e){if(!bc)g.innerHTML='<p style="grid-column:1/-1">Error de red</p>';return[]}
 }
 
 async function fetchTracks(id,title,artist){
-let tr=[];
-try{
-const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json'),d=await r.json();
-(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
-if(!tr.length&&title){
-const q=encodeURIComponent(`release:"${title}" AND artist:"${artist}"`);
-const r2=await fetch(MB+'/?query='+q+'&fmt=json&limit=5'),d2=await r2.json();
-for(const alt of(d2.releases||[])){
-if(alt.id===id)continue;
-const r3=await fetch(MB+'/'+alt.id+'?inc=recordings&fmt=json'),d3=await r3.json();
-(d3.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
-if(tr.length)break;
+  let tr=[];
+  try{
+    const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json'),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
+    if(!tr.length&&title){const r2=await fetch(MB+'/?query='+encodeURIComponent(`release:"${title}" AND artist:"${artist}"`)+'&fmt=json&limit=5'),d2=await r2.json();for(const alt of(d2.releases||[])){if(alt.id===id)continue;const r3=await fetch(MB+'/'+alt.id+'?inc=recordings&fmt=json'),d3=await r3.json();(d3.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));if(tr.length)break}}
+  }catch(e){}
+  return tr;
 }
-}
-}catch(e){}
-return tr;
-}
-
-async function openDet(id,sv,a='',t='',df='CD',bc=''){
-const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando canciones...';
-if(sv){
-const x=col.find(i=>i.id===id);
-b.innerHTML=`<img src="${x.c}" onerror="this.style.display='none'" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><button class="p" id="edt">✏️ Editar canciones</button><button style="background:#e53935;border:none" id="del">🗑️ Eliminar</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Escribe una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Editar canciones" para añadirlas.</li>'}</ul>`;
-document.getElementById('edt').onclick=()=>{const box=document.getElementById('edbox');box.style.display=box.style.display==='none'?'block':'none'};
-document.getElementById('savtr').onclick=()=>{x.tr=document.getElementById('txttr').value.split('\n').map(s=>s.trim()).filter(Boolean);save();openDet(id,true)};
-document.getElementById('del').onclick=()=>{col=col.filter(i=>i.id!==id);save();m.style.display='none'};
-document.getElementById('cls').onclick=()=>m.style.display='none';return;
-}
-const tr=await fetchTracks(id,t,a);
-const c=CA+'/'+id+'/front-500';
-b.innerHTML=`<img src="${c}" onerror="this.style.display='none'" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><button class="p" style="margin-right:8px" id="sav">💾 Guardar</button><button id="cls">Cerrar</button><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (puedes editarla después de guardar).</li>'}</ul>`;
-document.getElementById('cls').onclick=()=>m.style.display='none';
-document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,c,tr,bc});save();m.style.display='none';alert('¡Guardado!')};
+  async function openDet(id,mode,a='',t='',df='CD',bc='',prevImg=''){
+  const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando...';
+  if(mode==='col'||mode==='wsh'){
+    const x=(mode==='col'?col:wsh).find(i=>i.id===id);
+    b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="cimg">📷 Portada</button><input type="file" id="camf" accept="image/*" capture="environment" style="display:none"><button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
+    const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
+    document.getElementById('cimg').onclick=()=>document.getElementById('camf').click();
+    document.getElementById('camf').onchange=ev=>{const file=ev.target.files.at(0);if(!file)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const cv=document.createElement('canvas');cv.width=400;cv.height=400;cv.getContext('2d').drawImage(img,0,0,400,400);x.c=cv.toDataURL('image/jpeg',0.75);save();openDet(id,mode)};img.src=rd.result};rd.readAsDataURL(file)};
+    if(mode==='wsh')document.getElementById('mov').onclick=()=>{wsh=wsh.filter(i=>i.id!==id);col.push(x);save();m.style.display='none';alert('¡Movido a Colección!')};
+    document.getElementById('edt').onclick=()=>{const box=document.getElementById('edbox');box.style.display=box.style.display==='none'?'block':'none'};
+    document.getElementById('savtr').onclick=()=>{x.tr=document.getElementById('txttr').value.split('\n').map(s=>s.trim()).filter(Boolean);save();openDet(id,mode)};
+    document.getElementById('del').onclick=()=>{if(mode==='col')col=col.filter(i=>i.id!==id);else wsh=wsh.filter(i=>i.id!==id);save();m.style.display='none'};
+    document.getElementById('cls').onclick=()=>m.style.display='none';return;
+  }
+  const tr=await fetchTracks(id,t,a),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
+  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
+  const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,a,t);
+  document.getElementById('cls').onclick=()=>m.style.display='none';
+  document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Colección!')};
+  document.getElementById('savw').onclick=()=>{wsh.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Deseos!')};
 }
 
 function stopCam(){if(iv)clearInterval(iv);if(st)st.getTracks().forEach(t=>t.stop());document.getElementById('vid').style.display='none'}
 async function startCam(){
-const r=document.getElementById('sr'),v=document.getElementById('vid');
-if(!('BarcodeDetector' in window)){r.innerHTML='<div class="al no">Usa el cuadro de texto de arriba para escribir el código.</div>';return}
-try{
-st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=st;v.style.display='block';await v.play();
-r.innerHTML='<p style="margin-top:10px">Apunta al código de barras...</p>';
-const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
-iv=setInterval(async()=>{const cs=await det.detect(v);if(cs.length){stopCam();checkCode(cs.at(0).rawValue)}},600);
-}catch(e){r.innerHTML='<div class="al no">Permite el acceso a la cámara o escribe el código arriba.</div>'}
+  const r=document.getElementById('sr'),v=document.getElementById('vid');
+  if(!('BarcodeDetector' in window)){r.innerHTML='<div class="al no">Escribe el código de barras arriba.</div>';return}
+  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=st;v.style.display='block';await v.play();r.innerHTML='<p style="margin-top:10px">Apunta al código de barras...</p>';const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});iv=setInterval(async()=>{const cs=await det.detect(v);if(cs.length){stopCam();checkCode(cs.at(0).rawValue)}},600)}catch(e){r.innerHTML='<div class="al no">Permite la cámara o escribe el código arriba.</div>'}
 }
 async function checkCode(c){
-const r=document.getElementById('sr');r.innerHTML='<p style="margin-top:10px">Revisando...</p>';
-const ex=col.find(x=>x.bc===c);if(ex){r.innerHTML=`<div class="al yes">✅ ¡YA LO TIENES! ${ex.t} (${ex.f})</div>`;return}
-const f=await search(c);
-if(f&&f.length){
-const x=f.at(0),ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido';
-const inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());
-r.innerHTML=inc?`<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>`:`<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>`;
-}else r.innerHTML=`<div class="al no">❓ Código (${c}) no encontrado.</div>`;
+  const r=document.getElementById('sr');r.innerHTML='<p style="margin-top:10px">Revisando...</p>';
+  const ex=col.find(x=>x.bc===c);if(ex){r.innerHTML=`<div class="al yes">✅ ¡YA LO TIENES! ${ex.t} (${ex.f})</div>`;return}
+  const exw=wsh.find(x=>x.bc===c);if(exw){r.innerHTML=`<div class="al" style="background:#f57f17;color:#fff">⭐ ¡ESTÁ EN DESEOS! ${exw.t} (${exw.f})</div>`;return}
+  const f=await search(c);
+  if(f&&f.length){const x=f.at(0),ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());r.innerHTML=inc?`<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>`:`<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>`}else r.innerHTML=`<div class="al no">❓ Código (${c}) no encontrado.</div>`;
 }
 render();
 </script>
