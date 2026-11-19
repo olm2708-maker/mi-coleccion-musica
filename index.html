@@ -11,17 +11,15 @@ body{background:#121212;color:#fff;padding-bottom:85px}
 header{background:#1e1e1e;padding:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;flex-wrap:wrap;gap:6px}
 h1{font-size:1.15rem;color:#1db954}
 .tabs{display:flex;background:#181818;position:fixed;bottom:0;width:100%;border-top:1px solid #333;z-index:99}
-.tab{flex:1;padding:12px 4px;color:#aaa;font-weight:bold;border:none;background:none;font-size:.82rem;cursor:pointer}
+.tab{flex:1;padding:12px 4px;color:#aaa;font-weight:bold;border:none;background:none;font-size:.82rem}
 .tab.active{color:#1db954;border-top:3px solid #1db954}
 .sec{display:none;padding:15px}.sec.active{display:block}
 .row{display:flex;gap:8px;margin-bottom:15px}
 input,select,button{padding:11px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:.95rem}
-input{flex:1;min-width:0}button{cursor:pointer}
-button.p{background:#1db954;color:#000;font-weight:bold;border:none}
+input{flex:1;min-width:0}button.p{background:#1db954;color:#000;font-weight:bold;border:none}
 button.w{background:#ffb300;color:#000;font-weight:bold;border:none}
-button.d{background:#b71c1c;color:#fff;font-weight:bold;border:none}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#1e1e1e;border-radius:10px;overflow:hidden;border:1px solid #2c2c2c;cursor:pointer}
+.card{background:#1e1e1e;border-radius:10px;overflow:hidden;border:1px solid #2c2c2c}
 .card img{width:100%;aspect-ratio:1;object-fit:cover;background:#2a2a2a}
 .cb{padding:10px}.badge{background:#333;color:#1db954;font-size:.75rem;padding:3px 8px;border-radius:10px;display:inline-block;margin-top:5px}
 .badge.wish{color:#ffb300}
@@ -36,49 +34,13 @@ video{width:100%;border-radius:10px;margin-top:10px;display:none}
 <body>
 <header>
   <div><h1>🎵 Mi Colección</h1><small id="cnt" style="color:#aaa">0 discos</small></div>
-  <div>
-    <button id="exp" style="padding:6px 10px;font-size:.8rem">⬇️ Respaldo</button> 
-    <button id="imp" style="padding:6px 10px;font-size:.8rem">⬆️ Restaurar</button>
-    <input type="file" id="finp" accept=".json" style="display:none">
-  </div>
+  <div><button id="exp" style="padding:6px 10px;font-size:.8rem">⬇️ Respaldo</button> <button id="imp" style="padding:6px 10px;font-size:.8rem">⬆️ Restaurar</button><input type="file" id="finp" accept=".json" style="display:none"></div>
 </header>
-
-<div id="s-lib" class="sec active">
-  <div class="row">
-    <input id="fi" placeholder="Filtrar biblioteca...">
-    <select id="ff"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select>
-  </div>
-  <div id="glib" class="grid"></div>
-</div>
-
-<div id="s-wsh" class="sec">
-  <div class="row">
-    <input id="fw" placeholder="Filtrar deseos...">
-    <select id="ffw"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select>
-  </div>
-  <div id="gwsh" class="grid"></div>
-</div>
-
-<div id="s-add" class="sec">
-  <div class="row">
-    <input id="sq" placeholder="Artista o álbum...">
-    <button type="button" class="p" id="bs">Buscar</button>
-  </div>
-  <div id="gres" class="grid"></div>
-</div>
-
-<div id="s-scn" class="sec">
-  <button type="button" class="p" style="width:100%;margin-bottom:10px" id="bc">📷 Activar Cámara</button>
-  <div class="row">
-    <input id="mb" placeholder="O escribe código de barras...">
-    <button type="button" class="p" id="bv">Revisar</button>
-  </div>
-  <video id="vid" playsinline></video>
-  <div id="sr"></div>
-</div>
-
+<div id="s-lib" class="sec active"><div class="row"><input id="fi" placeholder="Filtrar biblioteca..."><select id="ff"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select></div><div id="glib" class="grid"></div></div>
+<div id="s-wsh" class="sec"><div class="row"><input id="fw" placeholder="Filtrar deseos..."><select id="ffw"><option value="Todos">Todos</option><option>Vinilo</option><option>CD</option><option>Cassette</option><option>Digital</option></select></div><div id="gwsh" class="grid"></div></div>
+<div id="s-add" class="sec"><div class="row"><input id="sq" placeholder="Artista o álbum..."><button type="button" class="p" id="bs">Buscar</button></div><div id="gres" class="grid"></div></div>
+<div id="s-scn" class="sec"><button type="button" class="p" style="width:100%;margin-bottom:10px" id="bc">📷 Activar Cámara</button><div class="row"><input id="mb" placeholder="O escribe código de barras..."><button type="button" class="p" id="bv">Revisar</button></div><video id="vid" playsinline></video><div id="sr"></div></div>
 <div id="mod" class="modal"><div class="mc" id="mbod"></div></div>
-
 <nav class="tabs">
   <button type="button" class="tab active" data-t="lib">📚 Colección</button>
   <button type="button" class="tab" data-t="wsh">⭐ Deseos</button>
@@ -86,245 +48,107 @@ video{width:100%;border-radius:10px;margin-top:10px;display:none}
   <button type="button" class="tab" data-t="scn">📷 Escáner</button>
 </nav>
 <script>
-let col = JSON.parse(localStorage.getItem('mc') || '[]');
-let wsh = JSON.parse(localStorage.getItem('mw') || '[]');
-let st = null, iv = null;
+let col=JSON.parse(localStorage.getItem('mc')||'[]'),wsh=JSON.parse(localStorage.getItem('mw')||'[]'),st=null,iv=null;
+const MB=['https:/','musicbrainz.org','ws','2','release'].join('/');
+const CA=['https:/','coverartarchive.org','release'].join('/');
+const IT=['https:/','://apple.com','search'].join('/');
+const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
+const save=()=>{localStorage.setItem('mc',JSON.stringify(col));localStorage.setItem('mw',JSON.stringify(wsh));render()};
 
-const MB = 'https://musicbrainz.org';
-const CA = 'https://coverartarchive.org';
-const IT = 'https://apple.com';
-const NO_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
+document.getElementById('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({col,wsh})],{type:'application/json'}));a.download='mi-coleccion-y-deseos.json';a.click()};
+document.getElementById('imp').onclick=()=>document.getElementById('finp').click();
+document.getElementById('finp').onchange=e=>{const f=e.target.files.at(0);if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d))col=d;else if(d.col){col=d.col;wsh=d.wsh||[]}save();alert('¡Respaldo restaurado!')}catch(err){alert('Archivo inválido')}};r.readAsText(f)};
 
-const save = () => {
-  localStorage.setItem('mc', JSON.stringify(col));
-  localStorage.setItem('mw', JSON.stringify(wsh));
-  render();
-};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.sec,.tab').forEach(e=>e.classList.remove('active'));document.getElementById('s-'+b.dataset.t).classList.add('active');b.classList.add('active');if(b.dataset.t!=='scn')stopCam()});
+document.getElementById('fi').oninput=render;document.getElementById('ff').onchange=render;
+document.getElementById('fw').oninput=render;document.getElementById('ffw').onchange=render;
+document.getElementById('bs').onclick=()=>search();
+document.getElementById('bc').onclick=startCam;
+document.getElementById('bv').onclick=()=>{const c=document.getElementById('mb').value.trim();if(c)checkCode(c)};
 
-document.getElementById('exp').onclick = () => {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({col, wsh})], {type: 'application/json'}));
-  a.download = 'mi-coleccion-y-deseos.json';
-  a.click();
-};
-
-document.getElementById('imp').onclick = () => document.getElementById('finp').click();
-document.getElementById('finp').onchange = e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try {
-      const d = JSON.parse(r.result);
-      if (Array.isArray(d)) col = d;
-      else if (d.col) { col = d.col; wsh = d.wsh || []; }
-      save();
-      alert('¡Respaldo restaurado!');
-    } catch (err) {
-      alert('Archivo inválido');
-    }
-  };
-  r.readAsText(f);
-};
-
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
-  document.querySelectorAll('.sec,.tab').forEach(e => e.classList.remove('active'));
-  document.getElementById('s-' + b.dataset.t).classList.add('active');
-  b.classList.add('active');
-  if (b.dataset.t !== 'scn') stopCam();
-});
-
-document.getElementById('fi').oninput = render;
-document.getElementById('ff').onchange = render;
-document.getElementById('fw').oninput = render;
-document.getElementById('ffw').onchange = render;
-document.getElementById('bs').onclick = () => search();
-document.getElementById('sq').onkeydown = e => { if (e.key === 'Enter') search(); };
-document.getElementById('bc').onclick = startCam;
-document.getElementById('bv').onclick = () => {
-  const c = document.getElementById('mb').value.trim();
-  if (c) checkCode(c);
-};
-
-async function fallbackCover(imgEl, artist, title) {
-  if (imgEl.dataset.tried) return;
-  imgEl.dataset.tried = '1';
-  try {
-    const r = await fetch(IT + '?term=' + encodeURIComponent(artist + ' ' + title) + '&entity=album&limit=1');
-    const d = await r.json();
-    if (d.results && d.results.length) {
-      imgEl.src = d.results[0].artworkUrl100.replace('100x100', '600x600');
-      return;
-    }
-  } catch (e) {}
-  imgEl.src = NO_IMG;
+async function fallbackCover(imgEl,artist,title){
+  if(imgEl.dataset.tried)return;imgEl.dataset.tried='1';
+  try{const r=await fetch(IT+'?term='+encodeURIComponent(artist+' '+title)+'&entity=album&limit=1'),d=await r.json();if(d.results&&d.results.length){imgEl.src=d.results.at(0).artworkUrl100.replace('100x100','600x600');return}}catch(e){}
+  imgEl.src=NO_IMG;
 }
 
-function renderList(arr, gridId, qId, fId, mode) {
-  const g = document.getElementById(gridId);
-  const q = document.getElementById(qId).value.toLowerCase();
-  const f = document.getElementById(fId).value;
-  const list = arr.filter(x => (x.t.toLowerCase().includes(q) || x.a.toLowerCase().includes(q)) && (f === 'Todos' || x.f === f));
-  
-  g.innerHTML = list.length ? '' : '<p style="grid-column:1/-1;text-align:center;color:#777;margin-top:20px">Vacío. Toca + Agregar abajo</p>';
-  list.forEach(x => {
-    const d = document.createElement('div');
-    d.className = 'card';
-    d.innerHTML = `<img src="${x.c}"><div class="cb"><b>${x.t}</b><br><small style="color:#bbb">${x.a}</small><br><span class="badge ${mode === 'wsh' ? 'wish' : ''}">${x.f}</span></div>`;
-    const img = d.querySelector('img');
-    img.onerror = () => fallbackCover(img, x.a, x.t);
-    d.onclick = () => openDet(x.id, mode);
-    g.appendChild(d);
-  });
+function renderList(arr,gridId,qId,fId,mode){
+  const g=document.getElementById(gridId),q=document.getElementById(qId).value.toLowerCase(),f=document.getElementById(fId).value;
+  const list=arr.filter(x=>(x.t.toLowerCase().includes(q)||x.a.toLowerCase().includes(q))&&(f==='Todos'||x.f===f));
+  g.innerHTML=list.length?'':'<p style="grid-column:1/-1;text-align:center;color:#777;margin-top:20px">Vacío. Toca + Agregar abajo</p>';
+  list.forEach(x=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<img src="${x.c}"><div class="cb"><b>${x.t}</b><br><small style="color:#bbb">${x.a}</small><br><span class="badge ${mode==='wsh'?'wish':''}">${x.f}</span></div>`;const img=d.querySelector('img');img.onerror=()=>fallbackCover(img,x.a,x.t);d.onclick=()=>openDet(x.id,mode);g.appendChild(d)});
 }
 
-function render() {
-  document.getElementById('cnt').innerText = `${col.length} en colección • ${wsh.length} deseos`;
-  renderList(col, 'glib', 'fi', 'ff', 'col');
-  renderList(wsh, 'gwsh', 'fw', 'ffw', 'wsh');
+function render(){document.getElementById('cnt').innerText=`${col.length} en colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','col');renderList(wsh,'gwsh','fw','ffw','wsh')}
+
+async function search(bc=null){
+  const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
+  const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando...</p>';
+  try{
+    const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d=await r.json(),rels=d.releases||[];if(bc)return rels;
+    g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados</p>';
+    rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new',a,x.title,f,x.barcode||'',img.src);g.appendChild(el)});
+  }catch(e){if(!bc)g.innerHTML='<p style="grid-column:1/-1">Error de red</p>';return[]}
 }
 
-async function search(bc = null) {
-  const q = bc ? 'barcode:' + bc : document.getElementById('sq').value.trim();
-  if (!q) return [];
-  const g = document.getElementById('gres');
-  if (!bc) g.innerHTML = '<p style="grid-column:1/-1">Buscando...</p>';
-  
-  try {
-    const r = await fetch(MB + '/?query=' + encodeURIComponent(q) + '&fmt=json&limit=12');
-    const d = await r.json();
-    const rels = d.releases || [];
-    if (bc) return rels;
-    
-    g.innerHTML = rels.length ? '' : '<p style="grid-column:1/-1">Sin resultados</p>';
-    rels.forEach(x => {
-      const ac = x['artist-credit'];
-      const a = (ac && ac.length) ? ac[0].name : 'Desconocido';
-      const c = CA + '/' + x.id + '/front-250';
-      const rawFmt = (x.media && x.media.length && x.media[0].format) ? x.media[0].format : 'CD';
-      const f = rawFmt.includes('Vinyl') ? 'Vinilo' : rawFmt.includes('Cassette') ? 'Cassette' : rawFmt.includes('Digital') ? 'Digital' : 'CD';
-      
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `<img src="${c}"><div class="cb"><b>${x.title}</b><br><small style="color:#bbb">${a}</small><br><span class="badge">${f}</span></div>`;
-      const img = el.querySelector('img');
-      img.onerror = () => fallbackCover(img, a, x.title);
-      el.onclick = () => openNew(x.id, x.title, a, c, f, x.barcode || '');
-      g.appendChild(el);
+async function fetchTracks(id,title,artist){
+  let tr=[];
+  try{
+    const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json'),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
+    if(!tr.length&&title){const r2=await fetch(MB+'/?query='+encodeURIComponent(`release:"${title}" AND artist:"${artist}"`)+'&fmt=json&limit=5'),d2=await r2.json();for(const alt of(d2.releases||[])){if(alt.id===id)continue;const r3=await fetch(MB+'/'+alt.id+'?inc=recordings&fmt=json'),d3=await r3.json();(d3.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));if(tr.length)break}}
+  }catch(e){}
+  return tr;
+}
+async function openDet(id,mode,a='',t='',df='CD',bc='',prevImg=''){
+  const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando...';
+  if(mode==='col'||mode==='wsh'){
+    const x=(mode==='col'?col:wsh).find(i=>i.id===id);
+    b.innerHTML=`<img id="mimg" src="${x.c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${x.t}</h2><p style="color:#bbb;margin-bottom:10px">${x.a} • <b>${x.f}</b></p><div style="margin-bottom:10px;background:#2a2a2a;padding:8px;border-radius:8px"><label style="font-size:.85rem;color:#1db954;display:block;margin-bottom:4px">🖼️ Cambiar portada (Galería o Cámara):</label><input type="file" id="camf" accept="image/*" style="width:100%;font-size:.85rem;padding:6px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${mode==='wsh'?'<button class="p" id="mov">✅ ¡Ya lo conseguí!</button>':''}<button id="edt">✏️ Canciones</button><button style="background:#e53935;border:none" id="del">🗑️</button><button id="cls">Cerrar</button></div><div id="edbox" style="display:none;margin-bottom:10px"><textarea id="txttr" rows="6" style="width:100%;background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:8px" placeholder="Una canción por línea...">${x.tr.join('\n')}</textarea><button class="p" style="margin-top:6px;width:100%" id="savtr">Guardar lista</button></div><ul>${x.tr.length?x.tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin canciones. Toca "Canciones" para editar.</li>'}</ul>`;
+    const mimg=document.getElementById('mimg');
+    if(x.c.startsWith('data:image/svg'))fallbackCover(mimg,x.a,x.t);
+    mimg.onerror=()=>fallbackCover(mimg,x.a,x.t);
+    document.getElementById('camf').addEventListener('change',function(){
+      const file=this.files&&this.files.item(0);if(!file)return;
+      const rd=new FileReader();
+      rd.onload=ev=>{
+        const img=new Image();
+        img.onload=()=>{
+          const cv=document.createElement('canvas');cv.width=400;cv.height=400;
+          cv.getContext('2d').drawImage(img,0,0,400,400);
+          const dataUrl=cv.toDataURL('image/jpeg',0.8);
+          x.c=dataUrl;mimg.src=dataUrl;save();
+        };
+        img.src=ev.target.result;
+      };
+      rd.readAsDataURL(file);
     });
-  } catch (e) {
-    if (!bc) g.innerHTML = '<p style="grid-column:1/-1;color:#ff6b6b">Error al conectar con MusicBrainz</p>';
-    return [];
+    if(mode==='wsh')document.getElementById('mov').onclick=()=>{wsh=wsh.filter(i=>i.id!==id);col.push(x);save();m.style.display='none';alert('¡Movido a Colección!')};
+    document.getElementById('edt').onclick=()=>{const box=document.getElementById('edbox');box.style.display=box.style.display==='none'?'block':'none'};
+    document.getElementById('savtr').onclick=()=>{x.tr=document.getElementById('txttr').value.split('\n').map(s=>s.trim()).filter(Boolean);save();openDet(id,mode)};
+    document.getElementById('del').onclick=()=>{if(mode==='col')col=col.filter(i=>i.id!==id);else wsh=wsh.filter(i=>i.id!==id);save();m.style.display='none'};
+    document.getElementById('cls').onclick=()=>m.style.display='none';return;
   }
-}
-function openNew(id, t, a, c, f, b) {
-  const m = document.getElementById('mod'), mb = document.getElementById('mbod');
-  mb.innerHTML = `
-    <img src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px" onerror="this.src='${NO_IMG}'">
-    <h3>${t}</h3><p style="color:#bbb;margin-bottom:10px">${a}</p>
-    <label style="font-size:.85rem;color:#aaa">Formato:</label>
-    <select id="nfmt" style="width:100%;margin:6px 0 12px">
-      <option ${f==='Vinilo'?'selected':''}>Vinilo</option>
-      <option ${f==='CD'?'selected':''}>CD</option>
-      <option ${f==='Cassette'?'selected':''}>Cassette</option>
-      <option ${f==='Digital'?'selected':''}>Digital</option>
-    </select>
-    <div class="row">
-      <button class="p" style="flex:1" id="addC">+ Colección</button>
-      <button class="w" style="flex:1" id="addW">+ Deseos</button>
-    </div>
-    <button style="width:100%" onclick="closeMod()">Cerrar</button>`;
-  m.style.display = 'block';
-  
-  const addItem = (target) => {
-    const fmt = document.getElementById('nfmt').value;
-    if (!target.some(x => x.id === id)) target.push({id, t, a, c, f: fmt, b});
-    save(); closeMod();
-  };
-  document.getElementById('addC').onclick = () => addItem(col);
-  document.getElementById('addW').onclick = () => addItem(wsh);
+  const tr=await fetchTracks(id,t,a),c=prevImg&&!prevImg.startsWith('data:')?prevImg.replace('front-250','front-500'):CA+'/'+id+'/front-500';
+  b.innerHTML=`<img id="mimg" src="${c}" style="width:100%;border-radius:8px;margin-bottom:10px"><h2>${t}</h2><p style="color:#bbb;margin-bottom:10px">${a}</p><select id="sf" style="width:100%;margin-bottom:10px"><option ${df.includes('Vinyl')?'selected':''}>Vinilo</option><option ${df.includes('CD')?'selected':''}>CD</option><option ${df.includes('Cassette')?'selected':''}>Cassette</option><option>Digital</option></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="p" style="flex:1" id="sav">💾 Colección</button><button class="w" style="flex:1" id="savw">⭐ Deseos</button><button id="cls">Cerrar</button></div><ul>${tr.length?tr.map((k,i)=>`<li>${i+1}. ${k}</li>`).join(''):'<li style="color:#888">Sin lista automática (edítala después).</li>'}</ul>`;
+  const mimg=document.getElementById('mimg');mimg.onerror=()=>fallbackCover(mimg,a,t);
+  document.getElementById('cls').onclick=()=>m.style.display='none';
+  document.getElementById('sav').onclick=()=>{col.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Colección!')};
+  document.getElementById('savw').onclick=()=>{wsh.push({id,t,a,f:document.getElementById('sf').value,c:mimg.src,tr,bc});save();m.style.display='none';alert('¡Agregado a Deseos!')};
 }
 
-function openDet(id, mode) {
-  const arr = mode === 'col' ? col : wsh;
-  const item = arr.find(x => x.id === id);
-  if (!item) return;
-  const m = document.getElementById('mod'), mb = document.getElementById('mbod');
-  mb.innerHTML = `
-    <img src="${item.c}" style="width:100%;border-radius:8px;margin-bottom:10px" onerror="this.src='${NO_IMG}'">
-    <h3>${item.t}</h3><p style="color:#bbb">${item.a}</p>
-    <span class="badge ${mode==='wsh'?'wish':''}" style="margin-bottom:15px">${item.f}</span>
-    ${mode === 'wsh' ? `<button class="p" style="width:100%;margin-bottom:8px" id="mvC">Mover a Colección</button>` : ''}
-    <button class="d" style="width:100%;margin-bottom:8px" id="delI">Eliminar</button>
-    <button style="width:100%" onclick="closeMod()">Cerrar</button>`;
-  m.style.display = 'block';
-
-  if (mode === 'wsh') {
-    document.getElementById('mvC').onclick = () => {
-      wsh = wsh.filter(x => x.id !== id);
-      if (!col.some(x => x.id === id)) col.push(item);
-      save(); closeMod();
-    };
-  }
-  document.getElementById('delI').onclick = () => {
-    if (mode === 'col') col = col.filter(x => x.id !== id);
-    else wsh = wsh.filter(x => x.id !== id);
-    save(); closeMod();
-  };
+function stopCam(){if(iv)clearInterval(iv);if(st)st.getTracks().forEach(t=>t.stop());document.getElementById('vid').style.display='none'}
+async function startCam(){
+  const r=document.getElementById('sr'),v=document.getElementById('vid');
+  if(!('BarcodeDetector' in window)){r.innerHTML='<div class="al no">Escribe el código de barras arriba.</div>';return}
+  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=st;v.style.display='block';await v.play();r.innerHTML='<p style="margin-top:10px">Apunta al código de barras...</p>';const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});iv=setInterval(async()=>{const cs=await det.detect(v);if(cs.length){stopCam();checkCode(cs.at(0).rawValue)}},600)}catch(e){r.innerHTML='<div class="al no">Permite la cámara o escribe el código arriba.</div>'}
 }
-
-function closeMod() { document.getElementById('mod').style.display = 'none'; }
-
-async function checkCode(code) {
-  const sr = document.getElementById('sr');
-  const inCol = col.find(x => x.b === code);
-  if (inCol) {
-    sr.innerHTML = `<div class="al yes">✅ ¡Ya lo tienes en tu colección!<br><small>${inCol.t} - ${inCol.a}</small></div>`;
-    return;
-  }
-  sr.innerHTML = '<p style="text-align:center;margin-top:10px">Buscando código...</p>';
-  const rels = await search(code);
-  if (!rels.length) {
-    sr.innerHTML = `<div class="al no">❌ Código no encontrado (${code})</div>`;
-    return;
-  }
-  const x = rels[0];
-  const a = (x['artist-credit'] && x['artist-credit'].length) ? x['artist-credit'][0].name : 'Desconocido';
-  const c = CA + '/' + x.id + '/front-250';
-  sr.innerHTML = `<div class="al no" style="margin-bottom:10px">⚠️ No está en tu colección</div>`;
-  openNew(x.id, x.title, a, c, 'CD', code);
+async function checkCode(c){
+  const r=document.getElementById('sr');r.innerHTML='<p style="margin-top:10px">Revisando...</p>';
+  const ex=col.find(x=>x.bc===c);if(ex){r.innerHTML=`<div class="al yes">✅ ¡YA LO TIENES! ${ex.t} (${ex.f})</div>`;return}
+  const exw=wsh.find(x=>x.bc===c);if(exw){r.innerHTML=`<div class="al" style="background:#f57f17;color:#fff">⭐ ¡ESTÁ EN DESEOS! ${exw.t} (${exw.f})</div>`;return}
+  const f=await search(c);
+  if(f&&f.length){const x=f.at(0),ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());r.innerHTML=inc?`<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>`:`<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>`}else r.innerHTML=`<div class="al no">❓ Código (${c}) no encontrado.</div>`;
 }
-
-async function startCam() {
-  const v = document.getElementById('vid'), sr = document.getElementById('sr');
-  if (!('BarcodeDetector' in window)) {
-    sr.innerHTML = '<div class="al no">Tu navegador no soporta escaneo por cámara. Usa el campo manual.</div>';
-    return;
-  }
-  try {
-    st = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}});
-    v.srcObject = st; v.style.display = 'block'; await v.play();
-    const det = new BarcodeDetector({formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e']});
-    iv = setInterval(async () => {
-      const codes = await det.detect(v);
-      if (codes.length) {
-        stopCam();
-        document.getElementById('mb').value = codes[0].rawValue;
-        checkCode(codes[0].rawValue);
-      }
-    }, 500);
-  } catch (e) {
-    sr.innerHTML = '<div class="al no">No se pudo acceder a la cámara.</div>';
-  }
-}
-
-function stopCam() {
-  if (iv) { clearInterval(iv); iv = null; }
-  if (st) { st.getTracks().forEach(t => t.stop()); st = null; }
-  const v = document.getElementById('vid');
-  v.style.display = 'none';
-}
-
 render();
 </script>
 </body>
