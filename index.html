@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Mi Colección Musical</title>
 <link rel="manifest" href="manifest.json">
 <style>
@@ -88,9 +89,31 @@ const MB='https://musicbrainz.org';
 const CA='https://coverartarchive.org';
 const IT='https://apple.com';
 const IL='https://apple.com';
-const MB_HDR={headers:{'User-Agent':'MiColeccionMusical/1.0 (contacto@ejemplo.com)'}};
 const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
 const save=()=>{localStorage.setItem('mc',JSON.stringify(col));localStorage.setItem('mw',JSON.stringify(wsh));render()};
+
+function jsonp(url){
+  return new Promise((res,rej)=>{
+    const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+    const s=document.createElement('script');
+    const t=setTimeout(()=>{cleanup();rej(new Error('Tiempo agotado'))},9000);
+    function cleanup(){clearTimeout(t);delete window[cb];if(s.parentNode)s.parentNode.removeChild(s)}
+    window[cb]=(d)=>{cleanup();res(d)};
+    s.onerror=()=>{cleanup();rej(new Error('Error JSONP'))};
+    s.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchMB(url){
+  try{
+    const r=await fetch(url);
+    if(r.ok)return await r.json();
+  }catch(e){}
+  const r2=await fetch('https://allorigins.win);
+  if(!r2.ok)throw new Error('Red MB no disponible');
+  return await r2.json();
+}
 
 ['fg','fgw'].forEach(id=>{const s=document.getElementById(id);GENRES.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;s.appendChild(o)})});
 
@@ -113,11 +136,11 @@ function mapGenre(raw){
 document.getElementById('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({col,wsh})],{type:'application/json'}));a.download='mi-coleccion-y-deseos.json';a.click()};
 document.getElementById('imp').onclick=()=>document.getElementById('finp').click();
 document.getElementById('finp').onchange=e=>{const f=e.target.files.at(0);if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d))col=d;else if(d.col){col=d.col;wsh=d.wsh||[]}save();alert('¡Respaldo restaurado!')}catch(err){alert('Archivo inválido')}};r.readAsText(f)};
-
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.sec,.tab').forEach(e=>e.classList.remove('active'));document.getElementById('s-'+b.dataset.t).classList.add('active');b.classList.add('active');if(b.dataset.t!=='scn')stopCam()});
 document.getElementById('fi').oninput=render;document.getElementById('ff').onchange=render;document.getElementById('fg').onchange=render;
 document.getElementById('fw').oninput=render;document.getElementById('ffw').onchange=render;document.getElementById('fgw').onchange=render;
 document.getElementById('bs').onclick=()=>search();
+document.getElementById('sq').onkeydown=e=>{if(e.key==='Enter')search()};
 document.getElementById('bc').onclick=startCam;
 document.getElementById('bv').onclick=()=>{const c=document.getElementById('mb').value.trim();if(c)checkCode(c)};
 
@@ -129,7 +152,7 @@ document.getElementById('s-add').insertBefore(manBtn,document.getElementById('gr
 
 async function fallbackCover(imgEl,artist,title){
   if(imgEl.dataset.tried)return;imgEl.dataset.tried='1';
-  try{const r=await fetch(IT+'?term='+encodeURIComponent(artist+' '+title)+'&entity=album&limit=1'),d=await r.json();if(d.results&&d.results.length){imgEl.src=d.results.at(0).artworkUrl100.replace('100x100','600x600');return}}catch(e){}
+  try{const d=await jsonp(IT+'?term='+encodeURIComponent(artist+' '+title)+'&entity=album&limit=1');if(d.results&&d.results.length){imgEl.src=d.results.at(0).artworkUrl100.replace('100x100','600x600');return}}catch(e){}
   imgEl.src=NO_IMG;
 }
 
@@ -156,19 +179,21 @@ function renderList(arr,boxId,qId,fId,gId,mode){
 }
 
 function render(){document.getElementById('cnt').innerText=`${col.length} colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','fg','col');renderList(wsh,'gwsh','fw','ffw','fgw','wsh')}
+
 async function search(bc=null){
   const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
   const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando en catálogo mundial...</p>';
-  if(bc){try{const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5',MB_HDR),d=await r.json();return d.releases||[]}catch(e){return[]}}
+  if(bc){try{const d=await fetchMB(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5');return d.releases||[]}catch(e){return[]}}
+  let errMsg='';
   try{
-    const r=await fetch(IT+'?term='+encodeURIComponent(q)+'&entity=album&limit=16'),d=await r.json(),items=d.results||[];
+    const d=await jsonp(IT+'?term='+encodeURIComponent(q)+'&entity=album&limit=16'),items=d.results||[];
     if(items.length){g.innerHTML='';items.forEach(x=>{const c=x.artworkUrl100.replace('100x100','600x600'),dg=mapGenre(x.primaryGenreName),el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.collectionName}</b><br><small>${x.artistName}</small><br><span class="badge gen">${dg}</span></div>`;el.onclick=()=>openDet('it_'+x.collectionId,'new_it',x.artistName,x.collectionName,'Vinilo','',c,x.collectionId,dg);g.appendChild(el)});return}
-  }catch(e){}
+  }catch(e){errMsg=e.message||'Fallo iTunes'}
   try{
-    const r2=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12',MB_HDR),d2=await r2.json(),rels=d2.releases||[];
+    const d2=await fetchMB(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),rels=d2.releases||[];
     g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados. Usa el botón amarillo de arriba.</p>';
     rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small>${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new_mb',a,x.title,f,x.barcode||'',img.src,null,'Otro');g.appendChild(el)});
-  }catch(e){g.innerHTML='<p style="grid-column:1/-1">Error de red. Intenta de nuevo.</p>'}
+  }catch(e){g.innerHTML=`<p style="grid-column:1/-1;color:#ff8a80">Error de conexión (${errMsg} / ${e.message||'Fallo red'}). Verifica tus datos o Wi-Fi.</p>`}
 }
 const genOpts=(sel)=>GENRES.map(g=>`<option ${g===sel?'selected':''}>${g}</option>`).join('');
 
@@ -184,11 +209,12 @@ function openManual(){
 async function fetchTracks(id,mode,itId){
   let tr=[];
   try{
-    if(mode==='new_it'&&itId){const r=await fetch(IL+'?id='+itId+'&entity=song'),d=await r.json();(d.results||[]).forEach(k=>{if(k.wrapperType==='track')tr.push(k.trackName)});return tr}
-    const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json',MB_HDR),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
+    if(mode==='new_it'&&itId){const d=await jsonp(IL+'?id='+itId+'&entity=song');(d.results||[]).forEach(k=>{if(k.wrapperType==='track')tr.push(k.trackName)});return tr}
+    const d=await fetchMB(MB+'/'+id+'?inc=recordings&fmt=json');(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
   }catch(e){}
   return tr;
 }
+
 async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null,dg='Otro'){
   const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando canciones...';
   if(mode==='col'||mode==='wsh'){
