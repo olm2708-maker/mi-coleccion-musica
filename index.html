@@ -88,11 +88,11 @@ const thmSel=document.getElementById('thm');thmSel.value=savedThm;
 thmSel.onchange=e=>{document.body.className=e.target.value;localStorage.setItem('mthm',e.target.value)};
 
 const GENRES=['Rock','Pop','Metal','Jazz','Blues','Electrónica','Hip-Hop / Rap','Soul / Funk','Latina / Regional','Clásica','Soundtrack','Otro'];
-const MB='https://musicbrainz.org';
-const CA='https://coverartarchive.org';
-const IT='https://apple.com';
-const IL='https://apple.com';
-const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
+const MB='https://musicbrainz.org/ws/2/release';
+const CA='https://coverartarchive.org/release';
+const IT='https://itunes.apple.com/search';
+const IL='https://itunes.apple.com/lookup';
+const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
 
 const save=()=>{
   try{
@@ -122,7 +122,7 @@ async function fetchMB(url){
     const r=await fetch(url,{headers:{'Accept':'application/json'}});
     if(r.ok)return await r.json();
   }catch(e){}
-  const r2=await fetch('https://allorigins.win);
+  const r2=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url));
   if(!r2.ok)throw new Error('Red MB no disponible');
   return await r2.json();
 }
@@ -144,6 +144,7 @@ function mapGenre(raw){
   if(s.includes('soundtrack'))return 'Soundtrack';
   return 'Otro';
 }
+
 document.getElementById('exp').onclick=()=>{
   const a=document.createElement('a');
   const url=URL.createObjectURL(new Blob([JSON.stringify({col,wsh})],{type:'application/json'}));
@@ -260,6 +261,7 @@ async function search(bc=null){
     });
   }catch(e){g.innerHTML=`<p style="grid-column:1/-1;color:#ff8a80">Error de conexión (${errMsg} / ${e.message||'Fallo red'}). Verifica tus datos o Wi-Fi.</p>`}
 }
+
 const genOpts=(sel)=>GENRES.map(g=>`<option ${g===sel?'selected':''}>${g}</option>`).join('');
 
 function openManual(){
@@ -296,7 +298,7 @@ async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null,
     document.getElementById('ef').onchange=e=>{x.f=e.target.value;save()};
     document.getElementById('eg').onchange=e=>{x.g=e.target.value;save()};
     document.getElementById('camf').addEventListener('change',function(){
-      const file=this.files&&this.files;if(!file)return;
+      const file=this.files&&this.files[0];if(!file)return;
       const rd=new FileReader();
       rd.onload=ev=>{
         const img=new Image();
@@ -344,7 +346,7 @@ async function startCam(){
     iv=setInterval(async()=>{
       try{
         const cs=await det.detect(v);
-        if(cs.length){stopCam();checkCode(cs.rawValue)}
+        if(cs.length){stopCam();checkCode(cs[0].rawValue)}
       }catch(e){}
     },600);
   }catch(e){r.innerHTML='<div class="al no">Permite la cámara (requiere HTTPS) o escribe el código arriba.</div>'}
@@ -356,7 +358,7 @@ async function checkCode(c){
   const exw=wsh.find(x=>x.bc===c);if(exw){r.innerHTML=`<div class="al" style="background:#f57f17;color:#fff">⭐ ¡ESTÁ EN DESEOS! ${exw.t} (${exw.f})</div>`;return}
   const f=await search(c);
   if(f&&f.length){
-    const x=f,ac=x['artist-credit'],a=(ac&&ac.length)?ac.name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());
+    const x=f[0],ac=x['artist-credit'],a=(ac&&ac.length)?ac[0].name:'Desconocido',inc=col.find(i=>i.t.toLowerCase()===x.title.toLowerCase());
     r.innerHTML=inc?`<div class="al yes">✅ ¡YA LO TIENES! ${inc.t} (${inc.f})</div>`:`<div class="al no">❌ NO LO TIENES: ${x.title} - ${a}</div>`;
   }else r.innerHTML=`<div class="al no">❓ Código (${c}) no encontrado.</div>`;
 }
