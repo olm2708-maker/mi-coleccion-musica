@@ -1,15 +1,18 @@
 {
   "name": "Mi Colección Musical",
-  "short_name": "Colección",
+  "short_name": "Mi Colección",
+  "description": "Catálogo personal de vinilos, CDs, cassettes y lista de deseos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#1db954",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231db954'/><text y='.9em' font-size='70' x='15'>🎵</text></svg>",
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%23121212'/><circle cx='256' cy='256' r='185' fill='%231db954'/><circle cx='256' cy='256' r='60' fill='%23121212'/><circle cx='256' cy='256' r='22' fill='%23ffffff'/></svg>",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
