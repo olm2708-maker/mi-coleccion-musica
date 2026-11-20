@@ -84,10 +84,11 @@ const thmSel=document.getElementById('thm');thmSel.value=savedThm;
 thmSel.onchange=e=>{document.body.className=e.target.value;localStorage.setItem('mthm',e.target.value)};
 
 const GENRES=['Rock','Pop','Metal','Jazz','Blues','Electrónica','Hip-Hop / Rap','Soul / Funk','Latina / Regional','Clásica','Soundtrack','Otro'];
-const MB=['https:/','musicbrainz.org','ws','2','release'].join('/');
-const CA=['https:/','coverartarchive.org','release'].join('/');
-const IT=['https:/','://apple.com','search'].join('/');
-const IL=['https:/','://apple.com','lookup'].join('/');
+const MB='https://musicbrainz.org';
+const CA='https://coverartarchive.org';
+const IT='https://apple.com';
+const IL='https://apple.com';
+const MB_HDR={headers:{'User-Agent':'MiColeccionMusical/1.0 (contacto@ejemplo.com)'}};
 const NO_IMG="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='300' height='300'><rect width='300' height='300' fill='%23222'/><text x='50%' y='50%' fill='%23666' font-size='20' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin Portada</text></svg>";
 const save=()=>{localStorage.setItem('mc',JSON.stringify(col));localStorage.setItem('mw',JSON.stringify(wsh));render()};
 
@@ -155,15 +156,16 @@ function renderList(arr,boxId,qId,fId,gId,mode){
 }
 
 function render(){document.getElementById('cnt').innerText=`${col.length} colección • ${wsh.length} deseos`;renderList(col,'glib','fi','ff','fg','col');renderList(wsh,'gwsh','fw','ffw','fgw','wsh')}
-
 async function search(bc=null){
   const q=bc?'barcode:'+bc:document.getElementById('sq').value.trim();if(!q)return[];
   const g=document.getElementById('gres');if(!bc)g.innerHTML='<p style="grid-column:1/-1">Buscando en catálogo mundial...</p>';
-  if(bc){try{const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5'),d=await r.json();return d.releases||[]}catch(e){return[]}}
+  if(bc){try{const r=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=5',MB_HDR),d=await r.json();return d.releases||[]}catch(e){return[]}}
   try{
     const r=await fetch(IT+'?term='+encodeURIComponent(q)+'&entity=album&limit=16'),d=await r.json(),items=d.results||[];
     if(items.length){g.innerHTML='';items.forEach(x=>{const c=x.artworkUrl100.replace('100x100','600x600'),dg=mapGenre(x.primaryGenreName),el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.collectionName}</b><br><small>${x.artistName}</small><br><span class="badge gen">${dg}</span></div>`;el.onclick=()=>openDet('it_'+x.collectionId,'new_it',x.artistName,x.collectionName,'Vinilo','',c,x.collectionId,dg);g.appendChild(el)});return}
-    const r2=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12'),d2=await r2.json(),rels=d2.releases||[];
+  }catch(e){}
+  try{
+    const r2=await fetch(MB+'/?query='+encodeURIComponent(q)+'&fmt=json&limit=12',MB_HDR),d2=await r2.json(),rels=d2.releases||[];
     g.innerHTML=rels.length?'':'<p style="grid-column:1/-1">Sin resultados. Usa el botón amarillo de arriba.</p>';
     rels.forEach(x=>{const ac=x['artist-credit'],a=(ac&&ac.length)?ac.at(0).name:'Desconocido',c=CA+'/'+x.id+'/front-250',f=(x.media&&x.media.length&&x.media.at(0).format)?x.media.at(0).format:'CD';const el=document.createElement('div');el.className='card';el.innerHTML=`<img src="${c}"><div class="cb"><b>${x.title}</b><br><small>${a}</small><br><span class="badge">${f}</span></div>`;const img=el.querySelector('img');img.onerror=()=>fallbackCover(img,a,x.title);el.onclick=()=>openDet(x.id,'new_mb',a,x.title,f,x.barcode||'',img.src,null,'Otro');g.appendChild(el)});
   }catch(e){g.innerHTML='<p style="grid-column:1/-1">Error de red. Intenta de nuevo.</p>'}
@@ -183,11 +185,10 @@ async function fetchTracks(id,mode,itId){
   let tr=[];
   try{
     if(mode==='new_it'&&itId){const r=await fetch(IL+'?id='+itId+'&entity=song'),d=await r.json();(d.results||[]).forEach(k=>{if(k.wrapperType==='track')tr.push(k.trackName)});return tr}
-    const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json'),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
+    const r=await fetch(MB+'/'+id+'?inc=recordings&fmt=json',MB_HDR),d=await r.json();(d.media||[]).forEach(w=>(w.tracks||[]).forEach(k=>tr.push(k.title)));
   }catch(e){}
   return tr;
 }
-
 async function openDet(id,mode,a='',t='',df='Vinilo',bc='',prevImg='',itId=null,dg='Otro'){
   const m=document.getElementById('mod'),b=document.getElementById('mbod');m.style.display='block';b.innerHTML='Cargando canciones...';
   if(mode==='col'||mode==='wsh'){
